@@ -1,0 +1,96 @@
+---
+title: Odoo Accounting Key Data Models
+---
+classDiagram
+
+    %% Relationships
+    AccountMove "1" *-- "0..*" AccountMoveLine : contains
+    AccountMove --> AccountJournal : journal
+    AccountMove --> Company : company
+
+    AccountMoveLine --> AccountAccount : account
+    AccountMoveLine --> ResPartner : partner
+    AccountMoveLine --> Currency : currency
+    AccountMoveLine --> AccountTax : taxes
+
+    AccountAccount --> AccountType : type
+    AccountAccount --> Company : company
+
+    AccountPayment --> ResPartner : partner
+    AccountPayment --> AccountJournal : journal
+    AccountPayment --> AccountPaymentMethod : method
+    AccountPayment --> AccountMove : journal_entry
+    AccountPayment --> Currency : currency
+
+    AccountTax --> AccountAccount : tax_account
+
+    FiscalPosition --> Company : company
+    FiscalPosition --> ResPartner : partner
+    FiscalPosition --> FiscalPositionTax : tax_mapping
+
+    ResPartner --> FiscalPosition : tax_position
+    ResPartner --> AccountMoveLine : journal_items
+    ResPartner --> AccountPayment : payments
+
+    %% Class Definitions
+
+    %% Journal Entry (account.move)
+    class AccountMove {
+        +String name
+        +Date date
+        +String state
+        +Monetary amount_total
+    }
+
+    %% Journal Line (account.move.line)
+    class AccountMoveLine {
+        +String name
+        +Monetary debit
+        +Monetary credit
+        +Monetary amount_currency
+    }
+
+    %% Chart of Account (account.account)
+    class AccountAccount {
+        +String code
+        +String name
+        +Boolean reconcile
+    }
+
+    %% Payment Entry (account.payment)
+    class AccountPayment {
+        +Date date
+        +String payment_type
+        +String partner_type
+        +Monetary amount
+    }
+
+    %% Tax Rule (account.tax)
+    class AccountTax {
+        +String name
+        +Float amount
+        +String amount_type
+        +String type_tax_use
+    }
+
+    %% Fiscal Position Mapping (account.fiscal.position)
+    class FiscalPosition {
+        +String name
+    }
+
+    %% Partner (res.partner)
+    class ResPartner {
+        +String name
+        +Boolean is_company
+        +String vat
+        +int customer_rank
+        +int supplier_rank
+    }
+
+    %% External / referenced models
+    class AccountJournal
+    class AccountPaymentMethod
+    class AccountType
+    class Company
+    class Currency
+    class FiscalPositionTax

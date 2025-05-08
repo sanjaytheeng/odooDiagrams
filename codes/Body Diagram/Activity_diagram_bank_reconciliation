@@ -1,0 +1,39 @@
+@startuml
+title Bank Reconciliation - Activity Diagram
+
+start
+
+:Import Bank Statement;
+:Create `account.bank.statement`;
+
+:Generate Statement Lines (`account.bank.statement.line`);
+note right
+  - Each line represents a bank transaction
+  - Includes amount, date, label, etc.
+end note
+
+:Try Auto-Match with `account.move.line`;
+note right
+  System tries to match
+  with existing journal items
+  based on amount, partner, and reference.
+end note
+
+if (All Lines Matched?) then (yes)
+  :Mark Statement as Reconciled;
+  :Post Reconciliation Entry (`account.move`);
+  :Post Reconciliation Lines (`account.move.line`);
+else (no)
+  :Flag Unmatched Lines;
+
+  while (Unmatched Lines Exist?)
+    :User Manually Matches Remaining Lines;
+    :Update Matching Records;
+  endwhile
+
+  :Validate Reconciliation;
+  :Post Final Journal Entries (`account.move.line`);
+endif
+
+stop
+@enduml

@@ -1,0 +1,28 @@
+C4Context
+    title Container Diagram for Odoo Accounting Module
+
+    Enterprise_Boundary(e1, "Odoo ERP") {
+        Person(accountant, "Accountant", "Records and manages financial data")
+        Person(fin_manager, "Finance Manager", "Reviews reports and approves financial operations")
+
+        System_Boundary(s1, "Odoo Accounting Module") {
+            Container(web_client, "Web Client", "JavaScript/HTML", "User interface for accountants and finance managers")
+            Container(app_server, "Application Server", "Python (Odoo)", "Handles business logic for accounting")
+            Container(database, "PostgreSQL Database", "PostgreSQL", "Stores all accounting records")
+            Container(api_gateway, "API Gateway", "REST/JSON", "Connects to external systems like banks and tax systems")
+        }
+    }
+
+    System_Ext(bank, "Banking System", "Used for bank statement imports and payments")
+    System_Ext(tax, "Tax Authority System", "Used for tax submissions")
+
+    Rel(accountant, web_client, "Uses for data entry and reconciliation")
+    Rel(fin_manager, web_client, "Uses for review and reporting")
+
+    Rel(web_client, app_server, "Sends UI requests")
+    Rel(app_server, database, "Reads/writes data")
+    Rel(app_server, api_gateway, "Sends/receives data")
+    Rel(api_gateway, bank, "Sends payment requests / receives bank statements")
+    Rel(api_gateway, tax, "Submits tax data")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")

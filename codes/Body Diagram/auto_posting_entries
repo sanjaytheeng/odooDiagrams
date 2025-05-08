@@ -1,0 +1,19 @@
+graph TD
+  A[Start] --> B[Scheduled Trigger or Event]
+  B --> C[Fetch Draft Sale Invoices]
+  C --> D{Invoices Found?}
+  D -->|Yes| E[Check Conditions for Each Invoice]
+  D -->|No| Z[End]
+  
+  E --> F{Conditions Met?}
+  F -->|Yes| G[Create Journal Line]
+  G --> H[Link Journal Line to Invoice]
+  H --> I[Update Invoice Status / Log]
+  F -->|No| J[Skip Transaction]
+  J --> K[Next Invoice]
+  
+  K --> C
+  I --> K
+  Z --> End
+  
+  style Z fill:#f9f,stroke:#333,stroke-width:4px

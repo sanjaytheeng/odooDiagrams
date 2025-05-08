@@ -1,0 +1,41 @@
+C4Context
+    title System Context Diagram for Odoo Accounting Module
+
+    Enterprise_Boundary(e1, "Odoo ERP") {
+
+        Person(accountant, "Accountant", "Records and manages financial data")
+        Person(fin_manager, "Finance Manager", "Reviews reports and approves financial operations")
+        Person(auditor, "Auditor", "Performs audits and accesses financial records")
+
+        System_Boundary(accounting, "Odoo Accounting Module") {
+            System(odoo_accounting, "Accounting Module", "Handles all financial operations including ledgers, taxes, and reports")
+        }
+
+        System(sales, "Sales Module", "Manages quotations, orders, and invoicing")
+        System(purchase, "Purchase Module", "Handles vendor purchases and bills")
+        System(inventory, "Inventory Module", "Tracks stock, valuation, and COGS")
+        System(hr, "HR Module", "Manages payroll and employee expenses")
+    }
+
+    System_Ext(bank, "Banking System", "External banks for statement import and payments")
+    System_Ext(tax, "Tax Authority System", "For tax submission and compliance")
+    System_Ext(erp_api, "External ERP APIs", "For external system integration")
+
+    BiRel(accountant, odoo_accounting, "Uses for transaction entry and reconciliation")
+    BiRel(fin_manager, odoo_accounting, "Uses for review and approval")
+    BiRel(auditor, odoo_accounting, "Audits financial data")
+
+    Rel(sales, odoo_accounting, "Sends invoice and payment data")
+    Rel(purchase, odoo_accounting, "Sends vendor bill data")
+    Rel(inventory, odoo_accounting, "Provides stock and valuation info")
+    Rel(hr, odoo_accounting, "Sends payroll journal data")
+
+    Rel(odoo_accounting, bank, "Imports statements and sends payments")
+    Rel(odoo_accounting, tax, "Submits tax returns")
+    Rel(odoo_accounting, erp_api, "Integrates via APIs")
+
+    UpdateElementStyle(accountant, $fontColor="black", $bgColor="lightyellow", $borderColor="darkorange")
+    UpdateRelStyle(sales, odoo_accounting, $textColor="blue", $lineColor="blue")
+    UpdateRelStyle(odoo_accounting, bank, $textColor="green", $lineColor="green", $offsetY="-20")
+
+    UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")

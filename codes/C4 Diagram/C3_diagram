@@ -1,0 +1,23 @@
+C4Context
+    title Component Diagram for Application Server (Odoo Accounting)
+
+    Enterprise_Boundary(e1, "Odoo Accounting App Server") {
+
+        Container(app_server, "Application Server", "Python (Odoo)", "Executes core accounting logic")
+
+        Component(general_ledger, "General Ledger Component", "Python", "Handles journal entries and the chart of accounts")
+        Component(ap_ar, "Accounts Receivable/Payable", "Python", "Manages customer/vendor invoices and payments")
+        Component(tax_engine, "Tax Engine", "Python", "Computes taxes and generates reports")
+        Component(bank_recon, "Bank Reconciliation", "Python", "Matches internal records with bank statements")
+        Component(fin_reports, "Financial Reporting", "Python", "Generates balance sheets, P&L, etc.")
+        Component(integration, "Integration Service", "Python", "Manages external API communication")
+    }
+
+    Rel(app_server, general_ledger, "Uses")
+    Rel(general_ledger, ap_ar, "Passes invoice data")
+    Rel(ap_ar, bank_recon, "Provides transactions for reconciliation")
+    Rel(general_ledger, fin_reports, "Feeds financial data")
+    Rel(tax_engine, integration, "Sends tax data")
+    Rel(fin_reports, integration, "Exports reports")
+
+    UpdateLayoutConfig($c4ShapeInRow="3")

@@ -1,0 +1,94 @@
+@startuml
+
+' Base Object
+class Object <<general>> {
+}
+note top of Object : In Odoo, all models inherit from models.Model\nwhich in turn derives from Object.
+
+' Invoice (account.move)
+class account_move {
+  +id: String
+  +date: Date
+  +amount_total: Decimal
+  +state: String
+  +partner_id: String
+  +reference: String
+  +journal_id: String
+  +invoice_line_ids: List[account_move_line]
+}
+Object <|-- account_move
+
+' Invoice Line (account.move.line)
+class account_move_line {
+  +id: String
+  +move_id: String
+  +account_id: String
+  +debit: Decimal
+  +credit: Decimal
+  +name: String
+  +partner_id: String
+}
+Object <|-- account_move_line
+
+' Payment (account.payment)
+class account_payment {
+  +id: String
+  +amount: Decimal
+  +payment_date: Date
+  +partner_id: String
+  +journal_id: String
+  +payment_method: String
+  +state: String
+  +move_id: String
+}
+Object <|-- account_payment
+
+' Chart of Accounts (account.account)
+class account_account {
+  +id: String
+  +name: String
+  +code: String
+  +user_type_id: String
+  +balance: Decimal
+  +parent_id: String
+}
+Object <|-- account_account
+
+' Journal (account.journal)
+class account_journal {
+  +id: String
+  +name: String
+  +type: String
+  +code: String
+}
+Object <|-- account_journal
+
+' Custom Journal Automation Class
+class CustomJournalAutomation {
+  +id: String
+  +name: String
+  +trigger_event: String
+  +action: String
+  +execute()
+}
+Object <|-- CustomJournalAutomation
+
+' Custom Tax Calculation Class
+class CustomTaxCalculation {
+  +id: String
+  +tax_name: String
+  +tax_rate: Decimal
+  +applicable_to: String
+  +calculate_tax(invoice_amount: Decimal): Decimal
+}
+Object <|-- CustomTaxCalculation
+
+' Relationships
+account_move "1" -- "0..*" account_move_line : contains >
+account_payment "1" --> "1" account_move : settles >
+account_move_line "1" --> "1" account_account : posts to >
+account_move --> account_journal : journal >
+account_payment --> account_journal : journal >
+account_account "1" --> "0..1" account_account : parent >
+
+@enduml

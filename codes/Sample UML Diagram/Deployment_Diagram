@@ -1,0 +1,41 @@
+@startuml
+' Define nodes
+node "User Device\n(Web Browser)" as browser
+
+node "Internet" {
+  cloud "Reverse Proxy / Load Balancer" as proxy
+}
+
+node "Internal Network" {
+  node "Odoo Application Server" as odoo {
+    component "Odoo Core Modules"
+    component "Accounting Module"
+    component "Custom Addons"
+  }
+
+  node "PostgreSQL Database Server" as db {
+    database "Odoo DB\n(PostgreSQL)"
+  }
+
+  node "External Services" {
+    [Bank API]
+    [Payment Gateway API]
+    [Gov Tax API]
+  }
+
+  node "Backup Server" as backup {
+    folder "Database Snapshots"
+    folder "Logs & Reports"
+  }
+}
+
+' Relationships
+browser --> proxy : HTTPS Request
+proxy --> odoo : Internal HTTP/RPC
+odoo --> db : PostgreSQL Queries
+odoo --> [Bank API] : REST API
+odoo --> [Payment Gateway API] : REST API
+odoo --> [Gov Tax API] : XML-RPC / REST
+db --> backup : Periodic Backups
+
+@enduml

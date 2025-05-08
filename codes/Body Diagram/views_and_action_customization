@@ -1,0 +1,31 @@
+@startuml
+start
+
+:Start Customization;
+
+split
+    :Enhance Invoice View;
+    :Identify View (e.g., account.move.form);
+    :Inherit Original View (via XML);
+    :Add Fields (custom or existing);
+    if (Position Fields Correctly?) then (Yes)
+        :Use <xpath> with position="before/after";
+    else (No)
+        :Re-adjust Position;
+    endif
+    :Save Customized View;
+split again
+    :Create Aged Receivables List View;
+    :Define Fields (partner_id, due date, residual);
+    :Add Age Calculation Logic (30/60/90+);
+    :Add Filters by Age Range;
+    :Enable Grouping by Partner or Age;
+    :Save Report View;
+endsplit
+
+:Improved UI & Reporting;
+
+stop
+@enduml
+
+

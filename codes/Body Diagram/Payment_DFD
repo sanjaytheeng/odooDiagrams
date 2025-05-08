@@ -1,0 +1,34 @@
+@startuml
+title Payment Posting Workflow - Data Flow Diagram
+start
+
+:Initiate Payment Creation;
+:Create `account.payment` record;
+:Specify Payment Details;
+note right
+  - Payment Type (Inbound/Outbound)
+  - Partner (Customer/Vendor)
+  - Amount, Journal, Currency
+end note
+
+if ("All Required Fields Provided?") then (yes)
+  :Post Payment;
+  :Generate Journal Entry (`account.move`);
+  :Generate Journal Lines (`account.move.line`);
+  :Link Payment to Invoice (`account.partial.reconcile`);
+  :Update Invoice Balance;
+
+  if ("Overpayment or Partial?") then (yes)
+    :Create Open Residual Entry;
+  endif
+
+  :Notify Accountant;
+  :Mark Payment as Posted;
+
+else (no)
+  :Prompt User to Complete Missing Info;
+  --> back to "All Required Fields Provided?";
+endif
+
+stop
+@enduml

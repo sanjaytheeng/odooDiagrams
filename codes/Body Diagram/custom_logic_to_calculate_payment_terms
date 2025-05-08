@@ -1,0 +1,19 @@
+graph TD
+  A[Start] --> B[Input Invoice & Payment Term]
+  B --> C[Retrieve Custom Fields]
+  C --> D[Calculate Total Amount]
+  D --> E[Calculate Discount Based on Rate]
+  E --> F[Determine Early Payment Date]
+  F --> G{Early Payment?}
+  G -->|Yes| H[Apply Early Payment Discount]
+  G -->|No| I[Proceed with Standard Payment Date]
+  
+  H --> J[Create First Installment]
+  I --> J
+  J --> K[Create Remaining Installments]
+  K --> L[Construct Payment Schedule]
+  L --> M[Return Payment Schedule]
+  M --> Z[End]
+
+  style Z fill:#bbf,stroke:#333,stroke-width:4px
+  

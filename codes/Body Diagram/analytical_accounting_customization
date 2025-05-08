@@ -1,0 +1,20 @@
+@startuml
+' Define Flowchart with Advanced Symbols
+
+start
+:Create Analytical Account;
+:Define Analytical Dimensions (e.g., Marketing Department);
+:Link Analytical Account to Journal Items;
+
+' Decision
+if (Does the account have a valid analytical dimension?) then (yes)
+  :Modify account.move.line Model to Include Analytical Account Field;
+  :Update Views (Forms, Filters, Reports) to Display Analytical Accounts;
+  :Analyze Data by Analytical Account (Project, Department, Region);
+  :Generate Reports Based on Analytical Dimensions;
+else (no)
+  :Re-evaluate Analytical Account Configuration;
+endif
+
+stop
+@enduml

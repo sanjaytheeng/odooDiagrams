@@ -1,0 +1,46 @@
+@startuml
+title Advanced Activity Diagram: Automated Bank Reconciliation
+
+start
+
+:Import Bank Statement;
+
+partition "System" {
+  :Parse Bank Statement;
+  :Auto-Match Transactions;
+}
+
+:Decision;
+if ("All Transactions Matched?") then (yes)
+  :Mark Statement as Fully Reconciled;
+  :Update Reconciliation Status;
+else (no)
+  :Flag Unmatched Transactions;
+endif
+
+:User;
+partition "User" {
+  :Review Unmatched Transactions;
+  :Manually Match or Create Records;
+}
+
+partition "RetryLogic" {
+  :Retry Auto-Matching for Remaining;
+  if ("Still Unmatched?") then (yes)
+    :Log Exception & Notify Accountant;
+    :Mark as Fully Reconciled;
+  else (no)
+  endif
+}
+
+:Transactions Left?;
+if ("Transactions Left") then (yes)
+  :Log Exception & Notify Accountant;
+  :Mark as Fully Reconciled;
+endif
+
+:Finalize Reconciliation;
+:Update Reconciliation Log;
+
+stop
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+title Invoice to Journal Posting (Advanced Flow)
+
+actor Accountant
+participant "Invoice Form\n(UI)" as UI
+participant "Invoice Service" as InvoiceService
+participant "Validation Engine" as Validator
+participant "Journal Manager\n(account.move)" as Journal
+participant "Journal Item Manager\n(account.move.line)" as JournalLine
+participant "Account Engine" as AccountUpdater
+
+Accountant -> UI: Fill and Submit Invoice
+UI -> InvoiceService: sendInvoiceData()
+
+InvoiceService -> Validator: validateInvoice()
+Validator --> InvoiceService: validationResult
+
+alt Valid Invoice
+    InvoiceService -> Journal: createJournalEntry()
+    Journal -> JournalLine: generateMoveLines()
+    JournalLine -> AccountUpdater: updateBalances()
+    AccountUpdater -> Journal: markAsPosted()
+    Journal --> InvoiceService: entryPosted()
+    InvoiceService --> UI: showSuccess()
+else Invalid Invoice
+    InvoiceService --> UI: displayErrors()
+end
+
+@enduml

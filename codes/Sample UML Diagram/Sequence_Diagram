@@ -1,0 +1,51 @@
+@startuml
+actor Customer
+actor Vendor
+
+participant "Invoice System" as IS
+participant Journal
+participant "Payment System" as PS
+participant "Bank System" as BS
+participant "Sales Report Generator" as SRG
+participant "Vendor Bill System" as VBS
+participant Management
+
+== 1. Invoice to Journal Posting ==
+Customer -> IS : Request Invoice Creation
+IS -> IS : Generate Invoice ID
+IS -> IS : Post Invoice Entry
+IS --> Journal : Acknowledge Posting
+
+== 2. Payment Application to Invoice ==
+Customer -> PS : Make Payment
+PS -> PS : Verify Payment Details
+PS -> IS : Apply Payment to Invoice
+IS -> PS : Confirm Payment Applied
+PS --> Customer : Payment Confirmation
+
+== 3. Bank Statement Import and Reconciliation ==
+Customer -> BS : Import Bank Statement
+BS -> BS : Extract Transactions
+BS -> Journal : Match Transactions with Journal Entries
+Journal --> BS : Confirm Matched Transactions
+BS -> BS : Reconcile Matched Transactions
+BS --> Journal : Mark Reconciled as Done
+
+== 4. Generate a Sales Report ==
+Customer -> SRG : Select Date Range
+SRG -> SRG : Fetch Revenue Data
+SRG -> SRG : Fetch Expense Data
+SRG -> SRG : Calculate Totals
+SRG --> Customer : Display Sales Report
+
+== 5. Creating a Customer ==
+Customer -> Management : Register New Customer
+Management --> Customer : Customer Created
+
+== 6. Creating a Vendor Bill ==
+Customer -> VBS : Submit Vendor Bill
+VBS -> VBS : Validate Bill
+VBS -> VBS : Post Vendor Bill
+VBS --> Customer : Acknowledge Posting
+
+@enduml

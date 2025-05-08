@@ -1,0 +1,16 @@
+graph TD
+  subgraph "Odoo Accounting Source Code"
+    AccountModel["Account<br/><small>Defines models for accounts, ledgers, and journal entries<br/>(`account.account`)</small>"]
+    InvoiceModel["Invoice<br/><small>Manages customer and vendor invoices<br/>(`account.move`)</small>"]
+    ReconciliationEngine["Reconciliation Engine<br/><small>Handles reconciliation logic<br/>(`account.partial.reconcile`)</small>"]
+    TaxEngine["Tax Engine<br/><small>Handles tax rules and reporting<br/>(`account.tax`)</small>"]
+    ReportGenerator["Report Generator<br/><small>Generates PDF/Excel financial reports<br/>(`account.financial.html.report`)</small>"]
+    APIInterface["External API Interface<br/><small>Exposes API endpoints for external systems</small>"]
+  end
+
+  InvoiceModel -->|Creates journal entries| AccountModel
+  InvoiceModel -->|Triggers tax calculation| TaxEngine
+  InvoiceModel -->|Sends data for report generation| ReportGenerator
+  ReconciliationEngine -->|Matches bank data to accounts| AccountModel
+  TaxEngine -->|Submits data externally| APIInterface
+  ReportGenerator -->|Shares reports with third parties| APIInterface

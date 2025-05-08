@@ -1,0 +1,29 @@
+@startuml
+title Odoo Reporting Customization Workflow
+
+start
+
+:Identify Standard Report (P&L / Balance Sheet);
+:Inherit Report Template;
+if (Template Modification Needed?) then (yes)
+  :Modify Report Lines (Add/Update/Remove);
+  :Update Report Options (Date Range, Filters);
+  :Create Custom Reports;
+  :Choose Report Type (QWeb or Excel);
+  if (Report Type = QWeb?) then (yes)
+    :Create XML Template;
+    :Fetch Data using ORM;
+    :Format with QWeb Syntax;
+    :Generate PDF Output;
+    :View PDF Report;
+  else (no)
+    :Use xlsxwriter Library;
+    :Fetch Data using ORM;
+    :Format Spreadsheet;
+    :Export Excel File;
+  endif
+else (no)
+endif
+
+stop
+@enduml

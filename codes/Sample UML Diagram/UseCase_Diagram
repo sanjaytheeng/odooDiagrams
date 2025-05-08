@@ -1,0 +1,67 @@
+@startuml
+actor Accountant
+actor Customer
+actor Manager
+actor Vendor
+actor FinanceManager
+actor BankSystem
+
+left to right direction
+
+usecase "Create Invoice" as UC1
+usecase "Generate Invoice PDF" as UC2
+usecase "Send Invoice to Customer" as UC3
+usecase "Pay Invoice" as UC4
+usecase "Update Payment Status" as UC5
+usecase "Generate Payment Receipt" as UC6
+usecase "Submit Invoice for Approval" as UC7
+usecase "Approve Invoice" as UC8
+usecase "Reject Invoice" as UC9
+usecase "Notify Customer of Approval Status" as UC10
+usecase "Generate P&L Report" as UC11
+usecase "Generate Balance Sheet" as UC12
+usecase "Export Report to Excel" as UC13
+usecase "Import Bank Statement" as UC14
+usecase "Match Transactions" as UC15
+usecase "Mark Reconciled" as UC16
+usecase "Make Payment" as UC17
+usecase "Record Payment" as UC18
+usecase "Update Invoice Status" as UC19
+usecase "Create Vendor Bill" as UC20
+usecase "Validate Vendor Bill" as UC21
+usecase "Pay Vendor Bill" as UC22
+
+Accountant --> UC1
+Accountant --> UC2
+Accountant --> UC4
+Accountant --> UC5
+Accountant --> UC6
+Accountant --> UC7
+Accountant --> UC8
+Accountant --> UC9
+Accountant --> UC10
+Accountant --> UC11
+Accountant --> UC12
+Accountant --> UC13
+Accountant --> UC14
+Accountant --> UC15
+Accountant --> UC16
+Accountant --> UC18
+Accountant --> UC19
+Accountant --> UC20
+Accountant --> UC21
+Accountant --> UC22
+
+Customer --> UC3
+Customer --> UC4
+Customer --> UC17
+
+Manager --> UC8
+Manager --> UC9
+Manager --> UC10
+
+Vendor --> UC20
+
+BankSystem --> UC14
+
+@enduml

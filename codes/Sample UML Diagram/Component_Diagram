@@ -1,0 +1,39 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+
+' Internal Odoo Accounting Components
+package "Odoo Accounting Module" {
+  [Invoice Management] as IM
+  [Payment Handling] as PH
+  [Reconciliation Engine] as RE
+  [Reporting & Analytics] as RA
+  [Tax Engine] as TE
+  [Journal Engine] as JE
+
+  IM --> TE : Calculate Taxes
+  IM --> PH : Trigger Payment
+  PH --> RE : Send Payment Data
+  RE --> RA : Reconciliation Results
+  PH --> RA : Payment Reports
+  TE --> RA : Tax Reports
+  IM --> RA : Invoice Analytics
+  PH --> JE : Journal Entries
+  IM --> JE : Posting
+}
+
+' External Systems Integration
+package "External Systems" {
+  [Bank System] as BANK
+  [Payment Gateway] as PG
+  [Gov Tax API] as TAXAPI
+  [BI Tools / Excel Export] as BI
+}
+
+BANK --> RE : Bank Statements
+PG --> PH : Payment Confirmations
+TAXAPI --> TE : Tax Rates, Rules
+RA --> BI : Export Reports
+
+@enduml

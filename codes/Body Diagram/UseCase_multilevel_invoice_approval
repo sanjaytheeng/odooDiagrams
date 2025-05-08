@@ -1,0 +1,39 @@
+@startuml
+title Custom Multi-Level Invoice Approval - Use Case Diagram
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor Accountant
+actor "Manager (1st Level)" as Manager
+actor "Finance Director (2nd Level)" as Director
+actor System
+
+rectangle "Invoice Approval System" {
+    usecase "Draft Invoice" as UC1
+    usecase "Submit Invoice" as UC2
+    usecase "First-Level Review" as UC3
+    usecase "Second-Level Review" as UC4
+    usecase "Approve Invoice" as UC5
+    usecase "Reject Invoice" as UC6
+    usecase "Notify Stakeholders" as UC7
+    usecase "Post Approved Invoice" as UC8
+}
+
+Accountant --> UC1
+Accountant --> UC2
+Manager --> UC3
+Manager --> UC5
+Manager --> UC6
+Director --> UC4
+Director --> UC5
+Director --> UC6
+System --> UC7
+System --> UC8
+UC2 --> UC3 : triggers
+UC3 --> UC4 : if amount > threshold
+UC5 --> UC8 : if approved
+UC6 --> UC7 : always
+UC5 --> UC7 : always
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+title Invoice - Data Flow Diagram
+start
+
+:Create Invoice Draft;
+:Create `account.move` (Invoice Header);
+:Input Invoice Lines;
+:Create `account.move.line` (Invoice Lines);
+
+if ("All required fields filled?") then (yes)
+  :Validate Invoice;
+  :Compute Taxes and Totals;
+  :Post Journal Entry (`account.move`);
+  :Set Invoice Status to Posted;
+  :Send Invoice Notification;
+  :Register Payment;
+  :Create `account.payment`;
+  :Link to `account.move`;
+  :Post Payment Entry;
+  :Reconcile Payment (`account.partial.reconcile`);
+
+  if ("Cancel Invoice?") then (yes)
+    :Create Reverse Move Entry;
+    :Mark Invoice as Cancelled;
+  endif
+
+else (no)
+  :Prompt user to fill missing fields;
+  --> back to "All required fields filled?";
+endif
+
+stop
+@enduml
