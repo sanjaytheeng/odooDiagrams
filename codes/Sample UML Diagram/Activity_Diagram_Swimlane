@@ -1,0 +1,49 @@
+graph TD
+    subgraph Swimlane Diagram
+        subgraph Sales
+            A[Create Quotation] --> B[Send Quotation to Customer]
+            B --> C[Quotation Confirmed by Customer]
+            C --> D[Convert to Sales Order]
+            D --> E[Generate Draft Invoice]
+        end
+        subgraph Accounting
+            E --> F[Validate Draft Invoice]
+            F --> G[Apply Multi-Currency Conversion]
+            G --> H[Compute Taxes]
+            H --> I[Add Legal Notes to Taxes]
+            I --> J[Send Invoice to Customer]
+            J --> K[Record Invoice as Posted]
+            K --> L[Monitor Payment Status]
+            L -->|Overdue| M[Send Automated Payment Reminder]
+            M --> N[Receive Payment]
+            N --> O[Record Payment in Journal]
+            O --> P[Reconcile Payment with Invoice]
+            P --> Q[Import Bank Statement]
+            Q --> R[Match Bank Transactions]
+            R --> S[Generate Tax Report]
+            S --> T[Lock Tax Period]
+            T --> U[Export Tax Report in XML]
+        end
+        subgraph Customer
+            B --> V[Receive Quotation]
+            V --> W[Confirm Quotation]
+            W --> C
+            J --> X[Receive Invoice]
+            X --> Y[View Invoice in Customer Portal]
+            Y --> Z[Make Payment via Preferred Method]
+            Z --> N
+        end
+        subgraph Management
+            S --> AA[Review Tax Report]
+            AA --> AB[Approve Tax Report]
+            AB --> U
+            P --> AC[Generate Real-Time Financial Reports]
+            AC --> AD[Analyze Profit & Loss Report]
+            AD --> AE[Compare with Budget]
+            AE --> AF[Make Strategic Decisions]
+        end
+        subgraph End
+            U --> AG[Process Complete]
+            AF --> AG
+        end
+    end

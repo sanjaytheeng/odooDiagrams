@@ -1,0 +1,61 @@
+@startuml
+title Odoo Report Architecture
+
+!define RECTANGLE class
+skinparam rectangle {
+  Shadowing false
+  Rounded false
+  BorderColor black
+  BackgroundColor #f9f9f9
+}
+
+' Core Components
+rectangle "Data Sources" as DataSources {
+  [Invoices]
+  [Bills]
+  [Journal Entries]
+  [Bank Statements]
+  [Tax Information]
+  [Partner Data]
+  [Product Data]
+}
+
+rectangle "Report Engine" as ReportEngine {
+  [QWeb Templates]
+  [Bootstrap]
+  [Wkhtmltopdf]
+}
+
+rectangle "Report Definitions" as ReportDefinitions {
+  [Structure]
+  [Layout]
+  [Calculations]
+}
+
+rectangle "User Interface" as UI {
+  [Reporting Menu]
+  [Report Generation]
+}
+
+' Relationships
+DataSources --> ReportEngine : feeds data
+ReportDefinitions --> ReportEngine : defines structure & layout
+UI --> ReportDefinitions : user selects & customizes
+UI --> ReportEngine : triggers report generation
+
+' Key Reports
+rectangle "Balance Sheet" as BalanceSheet
+rectangle "Profit & Loss" as ProfitLoss
+rectangle "Cash Flow Statement" as CashFlow
+rectangle "Aged Receivable" as AgedReceivable
+rectangle "Aged Payable" as AgedPayable
+rectangle "Partner Ledger" as PartnerLedger
+
+BalanceSheet --> DataSources
+ProfitLoss --> DataSources
+CashFlow --> DataSources
+AgedReceivable --> DataSources
+AgedPayable --> DataSources
+PartnerLedger --> DataSources
+
+@enduml
