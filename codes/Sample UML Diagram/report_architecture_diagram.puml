@@ -1,16 +1,24 @@
 @startuml
-title Odoo Report Architecture
 
-!define RECTANGLE class
+skinparam shadowing false
+skinparam defaultTextAlignment center
 skinparam rectangle {
-  Shadowing false
-  Rounded false
-  BorderColor black
-  BackgroundColor #f9f9f9
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+  RoundCorner 10
 }
 
-' Core Components
-rectangle "Data Sources" as DataSources {
+' Define colors for groups
+skinparam component {
+  BackgroundColor<<Core>> #f2f2f2
+  BackgroundColor<<Engine>> #d9edf7
+  BackgroundColor<<Definition>> #fcf8e3
+  BackgroundColor<<UI>> #dff0d8
+  BackgroundColor<<Reports>> #fbeed5
+}
+
+package "Core Data Sources" <<Core>> {
   [Invoices]
   [Bills]
   [Journal Entries]
@@ -20,42 +28,58 @@ rectangle "Data Sources" as DataSources {
   [Product Data]
 }
 
-rectangle "Report Engine" as ReportEngine {
+package "Report Engine" <<Engine>> {
   [QWeb Templates]
   [Bootstrap]
   [Wkhtmltopdf]
 }
 
-rectangle "Report Definitions" as ReportDefinitions {
+package "Report Definitions" <<Definition>> {
   [Structure]
   [Layout]
   [Calculations]
 }
 
-rectangle "User Interface" as UI {
+package "User Interface" <<UI>> {
   [Reporting Menu]
   [Report Generation]
 }
 
+package "Key Reports" <<Reports>> {
+  [Balance Sheet]
+  [Profit & Loss]
+  [Cash Flow Statement]
+  [Aged Receivable]
+  [Aged Payable]
+  [Partner Ledger]
+}
+
 ' Relationships
-DataSources --> ReportEngine : feeds data
-ReportDefinitions --> ReportEngine : defines structure & layout
-UI --> ReportDefinitions : user selects & customizes
-UI --> ReportEngine : triggers report generation
+[Reporting Menu] --> [Structure] : Customize Reports
+[Reporting Menu] --> [Report Generation] : Triggers
+[Report Generation] --> [QWeb Templates]
+[Report Generation] --> [Bootstrap]
+[Report Generation] --> [Wkhtmltopdf]
+[QWeb Templates] --> [Structure]
+[QWeb Templates] --> [Layout]
+[QWeb Templates] --> [Calculations]
+[Bootstrap] --> [Structure]
+[Wkhtmltopdf] --> [Structure]
 
-' Key Reports
-rectangle "Balance Sheet" as BalanceSheet
-rectangle "Profit & Loss" as ProfitLoss
-rectangle "Cash Flow Statement" as CashFlow
-rectangle "Aged Receivable" as AgedReceivable
-rectangle "Aged Payable" as AgedPayable
-rectangle "Partner Ledger" as PartnerLedger
+[QWeb Templates] --> [Invoices]
+[QWeb Templates] --> [Bills]
+[QWeb Templates] --> [Journal Entries]
+[QWeb Templates] --> [Bank Statements]
+[QWeb Templates] --> [Tax Information]
+[QWeb Templates] --> [Partner Data]
+[QWeb Templates] --> [Product Data]
 
-BalanceSheet --> DataSources
-ProfitLoss --> DataSources
-CashFlow --> DataSources
-AgedReceivable --> DataSources
-AgedPayable --> DataSources
-PartnerLedger --> DataSources
+[Invoices] --> [Balance Sheet]
+[Bills] --> [Balance Sheet]
+[Journal Entries] --> [Profit & Loss]
+[Bank Statements] --> [Cash Flow Statement]
+[Partner Data] --> [Aged Receivable]
+[Partner Data] --> [Aged Payable]
+[Partner Data] --> [Partner Ledger]
 
 @enduml
