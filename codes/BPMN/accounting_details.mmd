@@ -1,0 +1,78 @@
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph Customer["Customer (Receivables) - Sales & Invoicing"]
+        CStart(["Start: Customer Order - Sales"])
+        C1(["Create Sales Order - Sales"])
+        C2(["Confirm Order -> Generate Invoice - Invoicing"])
+        C3(["Send Invoice - Invoicing"])
+        C4{"Payment Received?"}
+        C5(["Register Payment - Accounting/Payments"])
+        C6(["Send Payment Reminder - Invoicing Follow-up"])
+        CEnd(["End: Payment Reconciled - Bank Reconciliation"])
+  end
+ subgraph Vendor["Vendor (Payables) - Purchase & Accounting"]
+        VStart(["Start: Vendor Bill - Purchase"])
+        V1(["Record Vendor Bill - Accounting OCR"])
+        V2(["Validate Vendor Bill - Accounting"])
+        V3(["Schedule Vendor Payment - Accounting"])
+        V4(["Pay Vendor - Bank Payments"])
+        VEnd(["End: Vendor Payment Reconciled - Bank Reconciliation"])
+  end
+ subgraph Bank["Bank & Cash - Accounting"]
+        BStart(["Start: Import Bank Statement - Bank Feeds"])
+        B1(["Match Transactions - Reconciliation Model"])
+        B2{"Auto Match Found?"}
+        B3(["Auto Reconcile - Accounting"])
+        B4(["Manual Reconciliation - Accountant"])
+        BEnd(["End: Bank Reconciled"])
+  end
+ subgraph Accounting["Accounting (Core) - Odoo Accounting"]
+        A1(["Journal Entries Automatically Created"])
+        A2(["Review Journal Entries"])
+        A3(["Adjustments - Manual Entries if needed"])
+        A4(["Generate Reports - Balance Sheet, P&L, Trial Balance"])
+        A5(["Tax Reports - Fiscal Localizations"])
+        AEnd(["End: Reports Validated"])
+  end
+ subgraph Management["Management (FP&A) - Analytic Accounting & Reporting"]
+        M1(["Define Budget - Analytic Accounting"])
+        M2(["Compare Actual vs Budget - Reports"])
+        M3(["Profitability Analysis - Analytic Accounting"])
+        M4(["Management Review & Decisions"])
+        MEnd(["End: Insights for Growth"])
+  end
+    CStart --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 -- Yes --> C5
+    C5 --> CEnd
+    C4 -- No --> C6
+    C6 --> C4
+    VStart --> V1
+    V1 --> V2
+    V2 --> V3
+    V3 --> V4
+    V4 --> VEnd
+    BStart --> B1
+    B1 --> B2
+    B2 -- Yes --> B3
+    B3 --> BEnd
+    B2 -- No --> B4
+    B4 --> BEnd
+    A1 --> A2
+    A2 --> A3
+    A3 --> A4
+    A4 --> A5
+    A5 --> AEnd
+    M1 --> M2
+    M2 --> M3
+    M3 --> M4
+    M4 --> MEnd
+    CEnd --> BStart
+    VEnd --> BStart
+    BEnd --> A1
+    AEnd --> M1

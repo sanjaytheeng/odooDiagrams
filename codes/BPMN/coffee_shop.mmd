@@ -1,0 +1,113 @@
+graph TB
+    %% BPMN Styles
+    classDef startEvent fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    classDef endEvent fill:#ffebee,stroke:#f44336,stroke-width:4px
+    classDef messageStartEvent fill:#fff3e0,stroke:#4caf50,stroke-width:3px
+    classDef timerEvent fill:#f3e5f5,stroke:#9c27b0,stroke-width:3px
+    classDef userTask fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef serviceTask fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef sendTask fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef receiveTask fill:#fff8e1,stroke:#f57c00,stroke-width:2px
+    classDef exclusiveGateway fill:#fff8e1,stroke:#ff9800,stroke-width:3px
+    classDef parallelGateway fill:#f3e5f5,stroke:#673ab7,stroke-width:3px
+    
+    %% Customer Swimlane
+    subgraph Customer["Customer"]
+        direction LR
+        CS((Start:<br/>Wants Coffee)):::startEvent
+        CO[Place Order<br/>]:::userTask
+        CP[Make Payment<br/>]:::userTask
+        CR[Receive Product<br/>]:::receiveTask
+        CE((End:<br/>Satisfied)):::endEvent
+        
+        CS --> CO --> CP --> CR --> CE
+    end
+    
+    %% Sales Department Swimlane
+    subgraph Sales["Sales Department"]
+        direction LR
+        SRO((Receive<br/>Order)):::messageStartEvent
+        SPO[Process Order<br/>]:::userTask
+        SCI[Create Invoice<br/>]:::serviceTask
+        SSI[Send Invoice<br/>]:::sendTask
+        SGP{Payment<br/>Received?}:::exclusiveGateway
+        SRP[Record Payment<br/>]:::userTask
+        SSR[Send Reminder<br/>]:::sendTask
+        SPR[Prepare Product<br/>]:::userTask
+        SDP[Deliver Product<br/>]:::userTask
+        SCS((Sale<br/>Complete)):::endEvent
+        
+        SRO --> SPO --> SCI --> SSI --> SGP
+        SGP -->|Yes| SRP --> SPR --> SDP --> SCS
+        SGP -->|No| SSR --> SGP
+    end
+    
+    %% Accounting Department Swimlane
+    subgraph Accounting["Accounting Department"]
+        direction LR
+        ARS((Start:<br/>Daily Process)):::timerEvent
+        ARI[Record Income<br/>]:::userTask
+        ARV[Record Vendor Bills<br/>]:::userTask
+        AVB[Validate Bills<br/>✓]:::userTask
+        APG{Payment<br/>Due?}:::exclusiveGateway
+        APP[Process Payment<br/>]:::serviceTask
+        ARS2[Reconcile Bank<br/>]:::serviceTask
+        AGL[Update General Ledger<br/>]:::serviceTask
+        ARR[Generate Reports<br/>]:::serviceTask
+        ACM((Month-End<br/>Complete)):::endEvent
+        
+        ARS --> ARI
+        ARI --> ARV --> AVB --> APG
+        APG -->|Yes| APP
+        APG -->|No| ARS2
+        APP --> ARS2 --> AGL --> ARR --> ACM
+    end
+    
+    %% Vendor Swimlane
+    subgraph Vendor["Vendor/Supplier"]
+        direction LR
+        VRS((Receive<br/>PO)):::messageStartEvent
+        VDS[Deliver Supplies<br/>]:::userTask
+        VSI[Send Invoice<br/>]:::sendTask
+        VRP((Receive<br/>Payment)):::messageStartEvent
+        VRC[Record Payment<br/>]:::userTask
+        VCT((Transaction<br/>Complete)):::endEvent
+        
+        VRS --> VDS --> VSI --> VRP --> VRC --> VCT
+    end
+    
+    %% Bank/System Swimlane
+    subgraph Bank["Bank"]
+        direction LR
+        BAS((Auto:<br/>Statement)):::timerEvent
+        BIS[Import Statement<br/>]:::serviceTask
+        BMT[Match Transactions<br/>]:::serviceTask
+        BMG{Match<br/>Found?}:::exclusiveGateway
+        BAR[Auto Reconcile<br/>⚡]:::serviceTask
+        BMR[Manual Reconcile<br/>]:::userTask
+        BUL[Update Ledger<br/>]:::serviceTask
+        BSC((Reconciliation<br/>Complete)):::endEvent
+        
+        BAS --> BIS --> BMT --> BMG
+        BMG -->|Yes| BAR --> BUL --> BSC
+        BMG -->|No| BMR --> BUL
+    end
+    
+    %% Message Flows (Cross-Lane Communication)
+    CO -.->|Order Details| SRO
+    SSI -.->|Invoice| CP
+    SRP -.->|Payment Info| ARI
+    SPR -.->|Product Ready| CR
+    
+    ARV -.->|Purchase Order| VRS
+    VSI -.->|Vendor Bill| AVB
+    APP -.->|Payment| VRP
+    
+    SRP -.->|Payment Data| BMT
+    APP -.->|Payment Data| BMT
+    BUL -.->|Bank Data| AGL
+    
+    %% Parallel Gateway for Concurrent Processes
+    ARI --> APG2{Parallel<br/>Process}:::parallelGateway
+    APG2 --> ARV
+    APG2 --> ARS2

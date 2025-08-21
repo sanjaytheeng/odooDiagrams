@@ -1,0 +1,95 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+ subgraph Customer["Customer (Accounts Receivable)"]
+    direction TB
+        CS(("Start: Place Order"))
+        C1["Create Sales Order"]
+        C2["Generate Customer Invoice"]
+        C3["Send Invoice to Customer"]
+        C4{"Payment Received?"}
+        C5["Register Payment"]
+        C6["Send Payment Reminder"]
+        CE(("Payment Reconciled"))
+  end
+ subgraph Vendor["Vendor (Accounts Payable)"]
+    direction TB
+        VS(("Start: Deliver Goods/Service"))
+        V1["Receive & Record Vendor Bill"]
+        V2["Validate Bill"]
+        V3["Scheduled Payment Date Reached?"]
+        V4["Pay Vendor"]
+        VE(("Vendor Paid & Reconciled"))
+  end
+ subgraph Bank["Bank Integration"]
+        BS(("Bank Statement Imported"))
+        B1["Match Transactions with Invoices/Bills"]
+        B2{"Match Found?"}
+        B3["Auto-Reconcile Transaction"]
+        B4["Flag for Manual Reconciliation"]
+        B5["Manual Reconciliation"]
+        BE(("Bank Statement Reconciled"))
+  end
+ subgraph Reporting["Reporting & Closure"]
+        R1["Update General Ledger"]
+        R2["Close Period (Month-End)"]
+  end
+ subgraph OdooSystem["Odoo System (Accounting & Bank Reconciliation)"]
+    direction TB
+        Bank
+        Reporting
+  end
+    CS --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 -- Yes --> C5
+    C5 --> CE
+    C4 -- No --> C6
+    C6 --> C4
+    VS --> V1
+    V1 --> V2
+    V2 --> V3
+    V3 -- Yes --> V4
+    V4 --> VE
+    V3 -- No --> V3
+    BS --> B1
+    B1 --> B2
+    B2 -- Yes --> B3
+    B3 --> BE
+    B2 -- No --> B4
+    B4 --> B5
+    B5 --> BE
+    BE --> R1
+    R1 --> R2
+    C5 -.-> B1
+    V4 -.-> B1
+    BE -.-> C2 & V2
+     CS:::circle
+     C1:::task
+     C2:::task
+     C3:::sendTask
+     C4:::gateway
+     C5:::task
+     C6:::sendTask
+     CE:::circle_end
+     VS:::circle
+     V1:::task
+     V2:::task
+     V3:::gateway
+     V4:::task
+     VE:::circle_end
+     BS:::circle
+     B1:::task
+     B2:::gateway
+     B3:::task
+     B4:::task
+     B5:::task
+     BE:::circle_end
+    classDef circle fill:#0D99FF,stroke:#333,stroke-width:2px,color:#fff,shape:circle
+    classDef circle_end fill:#2ECC71,stroke:#333,stroke-width:2px,color:#fff,shape:circle
+    classDef task fill:#f9f,stroke:#333,stroke-width:1px,shape:rect,color:#000
+    classDef sendTask fill:#f9f,stroke:#333,stroke-width:1px,shape:rect,color:#000
+    classDef gateway fill:#ffdd57,stroke:#333,stroke-width:2px,shape:diamond
