@@ -1,0 +1,31 @@
+flowchart TD
+    classDef phase fill:#f0f8ff,stroke:#4a90e2,stroke-width:2px;
+    classDef action fill:#ffffff,stroke:#666,stroke-width:1px;
+    classDef decision fill:#fff8e1,stroke:#ff9800;
+    classDef loop fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5;
+
+    A(["Start: Initiate Administrative Workflow"]):::action
+    A --> B["1. Create User Account (Settings → Users & Companies → Users)"]
+    B --> C["2. Assign User Groups & Access Rights (Define roles: Manager, User, etc.)"]
+    C --> D{"Complex Org? (Multi-company / Custom Visibility?)"}
+    D -- "Yes" --> E["3. Configure Record Rules (Technical → Security → Record Rules)"]
+    D -- "No" --> F
+    E --> F
+
+    subgraph Data_Management ["Data Management"]
+        F["4. Import Master Data (CSV/Excel: Contacts, Products, Users)"]
+        F --> G["5. Export Data (Reporting, Migration, Backup)"]
+        G --> H["6. Manage Company Settings (Logo, Tax ID, Currency, Layout)"]
+    end
+
+    H --> I
+    subgraph Governance_Security ["Governance & Security"]
+        I["7. Monitor User Activity (Audit Logs, Chatter, Technical Logs)"]
+        I --> J["8. Maintain Data Security (Archive users, review permissions,\nclean duplicates, backup database)"]
+        J --> K["9. Generate Administrative Reports (Access summaries, login logs, audit trails)"]
+    end
+
+    K --> L(["End: Ongoing Administrative Cycle"]):::loop
+    L --> C
+
+    class Data_Management,Governance_Security phase

@@ -1,0 +1,54 @@
+sequenceDiagram
+    title Odoo Administrative Onboarding & Data Synchronization Flow
+
+    participant HR as HR Manager / System Admin
+    participant AdminMod as Administrative<br/>Management Module
+    participant AuthProv as External<br/>Authentication Provider
+    participant AccessMod as Access Rights &<br/>Groups Module
+    participant DataEngine as Data Import/<br/>Export Engine
+    participant AuditMod as Logging &<br/>Audit Tracking
+    participant Auditor as Compliance<br/>Auditor
+    participant ExtTool as External<br/>Data Tool
+
+    %% 1. User Creation & Invitation
+    HR->>AdminMod: Create new user<br/>(Name, Email, Company)
+    activate AdminMod
+    AdminMod->>AuthProv: Send invitation email<br/>(with setup link)
+    AuthProv-->>AdminMod: Acknowledge
+    AdminMod-->>HR: User record created
+    deactivate AdminMod
+
+    %% 2. Assign Access Rights
+    HR->>AccessMod: Assign user to groups<br/>(e.g., Sales/User, HR/Officer)
+    activate AccessMod
+    AccessMod->>AccessMod: Apply model permissions<br/>+ record rules (e.g., by company)
+    AccessMod-->>HR: Access rights updated
+    deactivate AccessMod
+
+    %% 3. Bulk Data Import
+    HR->>DataEngine: Upload CSV (Contacts, Products)
+    activate DataEngine
+    DataEngine->>DataEngine: Validate fields & auth scope
+    DataEngine->>DataEngine: Create/update records<br/>(respecting access rules)
+    DataEngine-->>HR: Import successful
+    deactivate DataEngine
+
+    %% 4. Data Export for Audit
+    Auditor->>DataEngine: Request export<br/>(e.g., user list, transactions)
+    activate DataEngine
+    DataEngine->>DataEngine: Filter by user’s access rights
+    DataEngine->>ExtTool: Deliver CSV/Excel file
+    ExtTool-->>Auditor: Data received
+    deactivate DataEngine
+
+    %% 5. Audit Logging
+    activate AuditMod
+    AdminMod->>AuditMod: Log: "User created"
+    AccessMod->>AuditMod: Log: "Groups assigned"
+    DataEngine->>AuditMod: Log: "Data imported/exported"
+    deactivate AuditMod
+
+    Auditor->>AuditMod: Query audit logs<br/>(Who changed what?)
+    activate AuditMod
+    AuditMod-->>Auditor: Return activity timeline<br/>(User, Timestamp, Action, IP)
+    deactivate AuditMod

@@ -1,0 +1,32 @@
+graph TD
+  classDef component fill:#e3f2fd,stroke:#1976d2,stroke-width:2px;
+  classDef dataModel fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px;
+  classDef external fill:#fff8e1,stroke:#ff8f00,stroke-width:1px;
+
+  subgraph "Odoo Administrative Management Source Code"
+    UserComponent["User Management<br/><small>Handles user lifecycle: create, invite, archive<br/>(<code>res.users</code>)</small>"]
+    AccessComponent["Access Rights & Groups<br/><small>Manages RBAC, menus, CRUD permissions<br/>(<code>res.groups</code>)</small>"]
+    RecordRules["Record Rules Engine<br/><small>Enforces row-level data visibility<br/>(<code>ir.rule</code>)</small>"]
+    DataEngine["Data Import/Export Engine<br/><small>Validates and processes CSV/Excel bulk operations<br/>(<code>base_import</code>)</small>"]
+    AuthService["Authentication Service<br/><small>Supports local + SSO (LDAP, OAuth, SAML)<br/>(<code>auth_* modules</code>)</small>"]
+    AuditLog["Audit Logging Service<br/><small>Tracks user actions and config changes<br/>(Odoo Enterprise)</small>"]
+    CompanyMgmt["Company Management<br/><small>Manages multi-company setup and isolation<br/>(<code>res.company</code>)</small>"]
+    APIInterface["External API Interface<br/><small>Exposes REST/JSON-RPC endpoints for external tools</small>"]
+  end
+
+  class UserComponent,AccessComponent,RecordRules,DataEngine,AuthService,AuditLog,CompanyMgmt,APIInterface component
+  class APIInterface external
+
+  UserComponent -->|Assigns to groups| AccessComponent
+  AccessComponent -->|Applies rules to| RecordRules
+  RecordRules -->|Filters data by company| CompanyMgmt
+  UserComponent -->|Links user to| CompanyMgmt
+  DataEngine -->|Respects permissions from| AccessComponent
+  DataEngine -->|Enforces visibility via| RecordRules
+  DataEngine -->|Validates company context from| CompanyMgmt
+  AuthService -->|Creates JIT user in| UserComponent
+  UserComponent -->|Logs events to| AuditLog
+  AccessComponent -->|Logs changes to| AuditLog
+  DataEngine -->|Logs imports/exports to| AuditLog
+  AuditLog -->|Exports logs via| APIInterface
+  DataEngine -->|Exports data via| APIInterface

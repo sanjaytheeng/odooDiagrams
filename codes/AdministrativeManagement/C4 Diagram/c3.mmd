@@ -1,0 +1,30 @@
+C4Context
+    title Component Diagram for Application Server (Odoo Administrative Management)
+
+    Enterprise_Boundary(e1, "Odoo Administrative Management App Server") {
+
+        Container(app_server, "Application Server", "Python (Odoo)", "Executes core administrative logic")
+
+        Component(user_mgmt, "User Management", "Python", "Creates, activates, and deactivates user accounts; sends invitations")
+        Component(access_control, "Access Rights & Groups", "Python", "Manages security groups, model permissions, and menu access")
+        Component(record_rules, "Record Rules Engine", "Python", "Enforces row-level data visibility (e.g., by company or department)")
+        Component(data_import_export, "Data Import/Export Engine", "Python", "Handles CSV/Excel bulk operations with permission-aware validation")
+        Component(auth_service, "Authentication Service", "Python", "Supports local login, LDAP, OAuth, and SAML (SSO)")
+        Component(audit_logging, "Audit Logging Service", "Python", "Tracks user actions, logins, and configuration changes (Enterprise)")
+        Component(company_mgmt, "Company Management", "Python", "Manages multi-company setup, data isolation, and legal entity info")
+    }
+
+    Rel(app_server, user_mgmt, "Uses")
+    Rel(user_mgmt, access_control, "Assigns users to groups")
+    Rel(access_control, record_rules, "Applies record-level filters based on group membership")
+    Rel(app_server, data_import_export, "Uses")
+    Rel(data_import_export, user_mgmt, "Creates users during HR import (optional)")
+    Rel(data_import_export, company_mgmt, "Validates company context during import/export")
+    Rel(app_server, auth_service, "Delegates authentication")
+    Rel(auth_service, user_mgmt, "Creates JIT users on first SSO login")
+    Rel(app_server, audit_logging, "Logs key events")
+    Rel(audit_logging, user_mgmt, "Logs user creation/activation")
+    Rel(audit_logging, access_control, "Logs group/permission changes")
+    Rel(company_mgmt, record_rules, "Provides company context for data isolation rules")
+
+    UpdateLayoutConfig($c4ShapeInRow="3")

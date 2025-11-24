@@ -1,0 +1,44 @@
+C4Context
+    title System Context Diagram for Odoo Administrative Management, Access Rights & Data Import/Export
+
+    Enterprise_Boundary(e1, "Odoo ERP Platform") {
+
+        Person(admin, "System Administrator", "Manages users, access rights, security groups, and system configuration")
+        Person(manager, "Department Manager", "Oversees access rights, approves permissions, and supervises operations")
+        Person(staff, "Internal Staff", "Uses Odoo modules with appropriate roles and permissions")
+        Person(auditor, "Compliance Auditor", "Reviews access logs, security settings, and data integrity")
+
+        System_Boundary(odoo_admin, "Administrative Management Module") {
+            System(access_rights, "Access Rights & Groups", "Defines permissions, roles, and record rules")
+            System(user_mgmt, "User Management", "Handles user accounts, passwords, and authentication")
+            System(data_import_export, "Data Import/Export Engine", "Imports and exports structured data (CSV, Excel) across modules")
+            System(logs_monitoring, "Logging & Audit Tracking", "Tracks access logs, configuration changes, and security alerts")
+        }
+
+        System(sales, "Sales Module", "Provides customer, product, and order data for import/export")
+        System(hr, "HR Module", "Provides employee, attendance, and payroll-related data")
+        System(accounting, "Accounting Module", "Exposes financial data import/export capabilities")
+    }
+
+    System_Ext(auth_provider, "External Authentication Provider", "LDAP, OAuth, SSO for user login and identity management")
+    System_Ext(ext_tools, "External Data Tools", "Excel/CSV editors, reporting tools, and BI applications")
+    System_Ext(backup_system, "Backup Storage System", "Stores exported backups and system snapshots securely")
+
+    Rel(admin, user_mgmt, "Creates and configures users")
+    Rel(admin, access_rights, "Creates groups, assigns permissions, defines record rules")
+    Rel(admin, data_import_export, "Imports and exports all module data")
+    Rel(admin, logs_monitoring, "Reviews audit logs and system alerts")
+
+    Rel(manager, access_rights, "Approves access requests and monitors permissions")
+    Rel(staff, data_import_export, "Imports operational data based on permissions")
+    Rel(auditor, logs_monitoring, "Audits access rights and data changes")
+
+    Rel(data_import_export, ext_tools, "Imports/exports CSV, Excel, or data templates")
+    Rel(user_mgmt, auth_provider, "Authenticates using OAuth/SSO/LDAP")
+    Rel(data_import_export, backup_system, "Stores exported files and backups")
+
+    Rel(sales, data_import_export, "Provides/imports customer and order data")
+    Rel(hr, data_import_export, "Provides/imports employee and payroll data")
+    Rel(accounting, data_import_export, "Provides/imports journal and transaction data")
+
+    UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")

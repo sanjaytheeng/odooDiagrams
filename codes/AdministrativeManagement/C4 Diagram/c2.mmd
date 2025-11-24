@@ -1,0 +1,29 @@
+flowchart LR
+    %% People
+    admin[System Administrator]
+    data_officer[Data Officer]
+
+    %% Main system
+    subgraph Odoo_Admin_Module["Odoo Admin & Data Module"]
+        web_client[Web Client<br/>Management UI]
+        app_server[Application Server<br/>Business logic & import/export]
+        database[PostgreSQL Database<br/>Users, permissions, audit logs, data]
+        security_engine[Access Rights Engine<br/>ACL & Record Rules]
+        import_export_service[Import/Export Service<br/>CSV/XLSX processor]
+    end
+
+    %% External systems
+    hr_sys[HR System<br/>Employee lists for import]
+    ext_tools[External Tools<br/>Export data to BI/Excel]
+
+    %% Relationships
+    admin --> web_client
+    data_officer --> web_client
+
+    web_client --> app_server
+    app_server --> database
+    app_server --> security_engine
+    app_server --> import_export_service
+
+    import_export_service --> hr_sys
+    import_export_service --> ext_tools

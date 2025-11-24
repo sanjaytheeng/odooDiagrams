@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="6c9f5d2" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.7.0">
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Participant_Process" name="Odoo Accounting &#38; Finance Process (Detailed)" processRef="Process_1" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:laneSet id="laneSet_1">
+      <bpmn:lane id="Lane_Audit" name="Audit &#38; Control">
+        <bpmn:flowNodeRef>Task_ReviewReports</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ReportsApproved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LockPeriod</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_GL</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_GL" name="General Ledger">
+        <bpmn:flowNodeRef>StartEvent_GL</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ImportBankStatement</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Reconcile</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ParallelPeriodEnd</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_JoinPeriodEnd</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GenerateDraftReports</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MakeAdjustments</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PostAccruals</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PostDepreciation</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_AP" name="Accounts Payable (A/P)">
+        <bpmn:flowNodeRef>StartEvent_AP</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EnterBill</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MatchBill</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_MatchSuccess</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Discrepancy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ApproveBill</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PostBill</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SchedulePayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ProcessPayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResolvePaymentIssue</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_AP</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BoundaryEvent_PaymentFailed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Investigate</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_AR" name="Accounts Receivable (A/R)">
+        <bpmn:flowNodeRef>StartEvent_AR</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateDraftInvoice</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_InvoiceApproval</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PostInvoice</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendInvoice</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_WaitForPayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_PaymentReceived</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_DueDateReached</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RegisterPayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_AR</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReviseInvoice</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FollowUp</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:sequenceFlow id="Flow_38" sourceRef="Task_MakeAdjustments" targetRef="Task_GenerateDraftReports" />
+    <bpmn:startEvent id="StartEvent_AR" name="SO Ready for Invoicing">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_CreateDraftInvoice" name="Create Draft Invoice">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_InvoiceApproval" name="Needs Approval?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_PostInvoice" name="Post Invoice">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SendInvoice" name="Send to Customer">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:eventBasedGateway id="Gateway_WaitForPayment">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:intermediateCatchEvent id="Event_PaymentReceived" name="Payment Received">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="Event_DueDateReached" name="Due Date Reached">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+      <bpmn:timerEventDefinition />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_RegisterPayment" name="Register &#38; Apply Payment">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_AR" name="Invoice Closed">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="StartEvent_AP" name="Vendor Bill Received">
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_EnterBill" name="Enter Vendor Bill">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_MatchBill" name="Match Bill with PO/Receipt (3-Way)">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_MatchSuccess" name="Match OK?">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_Discrepancy" name="Process Halted">
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_ApproveBill" name="Approve Bill for Payment">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:task id="Task_PostBill" name="Post Vendor Bill">
+      <bpmn:incoming>Flow_20</bpmn:incoming>
+      <bpmn:outgoing>Flow_21</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SchedulePayment" name="Schedule Payment">
+      <bpmn:incoming>Flow_21</bpmn:incoming>
+      <bpmn:outgoing>Flow_22</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ProcessPayment" name="Process Payment Batch">
+      <bpmn:incoming>Flow_22</bpmn:incoming>
+      <bpmn:outgoing>Flow_25</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ResolvePaymentIssue" name="Resolve Payment Issue">
+      <bpmn:incoming>Flow_23</bpmn:incoming>
+      <bpmn:outgoing>Flow_24</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_AP" name="Vendor Bill Paid">
+      <bpmn:incoming>Flow_24</bpmn:incoming>
+      <bpmn:incoming>Flow_25</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="StartEvent_GL" name="Period-End Started">
+      <bpmn:outgoing>Flow_26</bpmn:outgoing>
+      <bpmn:timerEventDefinition />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ImportBankStatement" name="Import Bank Feeds">
+      <bpmn:incoming>Flow_26</bpmn:incoming>
+      <bpmn:outgoing>Flow_27</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_Reconcile" name="Perform Bank Reconciliation">
+      <bpmn:incoming>Flow_27</bpmn:incoming>
+      <bpmn:outgoing>Flow_28</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_ParallelPeriodEnd">
+      <bpmn:incoming>Flow_28</bpmn:incoming>
+      <bpmn:outgoing>Flow_29</bpmn:outgoing>
+      <bpmn:outgoing>Flow_30</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:parallelGateway id="Gateway_JoinPeriodEnd">
+      <bpmn:incoming>Flow_31</bpmn:incoming>
+      <bpmn:incoming>Flow_32</bpmn:incoming>
+      <bpmn:outgoing>Flow_33</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Task_GenerateDraftReports" name="Generate Draft Financial Statements">
+      <bpmn:incoming>Flow_33</bpmn:incoming>
+      <bpmn:outgoing>Flow_34</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_MakeAdjustments" name="Make Adjusting Entries">
+      <bpmn:incoming>Flow_38</bpmn:incoming>
+      <bpmn:outgoing>Flow_39</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:userTask id="Task_ReviewReports" name="Management Review">
+      <bpmn:incoming>Flow_34</bpmn:incoming>
+      <bpmn:incoming>Flow_39</bpmn:incoming>
+      <bpmn:outgoing>Flow_35</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_ReportsApproved" name="Reports OK?">
+      <bpmn:incoming>Flow_35</bpmn:incoming>
+      <bpmn:outgoing>Flow_36</bpmn:outgoing>
+      <bpmn:outgoing>Flow_37</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_LockPeriod" name="Lock Accounting Period">
+      <bpmn:incoming>Flow_36</bpmn:incoming>
+      <bpmn:outgoing>Flow_40</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_GL" name="Period Closed &#38; Reported">
+      <bpmn:incoming>Flow_40</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="BoundaryEvent_PaymentFailed" attachedToRef="Task_ProcessPayment">
+      <bpmn:outgoing>Flow_23</bpmn:outgoing>
+      <bpmn:errorEventDefinition />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_AR" targetRef="Task_CreateDraftInvoice" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CreateDraftInvoice" targetRef="Gateway_InvoiceApproval" />
+    <bpmn:sequenceFlow id="Flow_3" name="Approved" sourceRef="Gateway_InvoiceApproval" targetRef="Task_PostInvoice" />
+    <bpmn:sequenceFlow id="Flow_4" name="Rejected" sourceRef="Gateway_InvoiceApproval" targetRef="Task_ReviseInvoice" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ReviseInvoice" targetRef="Task_PostInvoice" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_PostInvoice" targetRef="Task_SendInvoice" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_SendInvoice" targetRef="Gateway_WaitForPayment" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_FollowUp" targetRef="Gateway_WaitForPayment" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Gateway_WaitForPayment" targetRef="Event_PaymentReceived" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Gateway_WaitForPayment" targetRef="Event_DueDateReached" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Event_PaymentReceived" targetRef="Task_RegisterPayment" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Event_DueDateReached" targetRef="Task_FollowUp" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_RegisterPayment" targetRef="EndEvent_AR" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="StartEvent_AP" targetRef="Task_EnterBill" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Task_EnterBill" targetRef="Task_MatchBill" />
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Task_MatchBill" targetRef="Gateway_MatchSuccess" />
+    <bpmn:sequenceFlow id="Flow_17" name="Yes" sourceRef="Gateway_MatchSuccess" targetRef="Task_ApproveBill" />
+    <bpmn:sequenceFlow id="Flow_18" name="No" sourceRef="Gateway_MatchSuccess" targetRef="Task_Investigate" />
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="Task_Investigate" targetRef="EndEvent_Discrepancy" />
+    <bpmn:sequenceFlow id="Flow_20" sourceRef="Task_ApproveBill" targetRef="Task_PostBill" />
+    <bpmn:sequenceFlow id="Flow_21" sourceRef="Task_PostBill" targetRef="Task_SchedulePayment" />
+    <bpmn:sequenceFlow id="Flow_22" sourceRef="Task_SchedulePayment" targetRef="Task_ProcessPayment" />
+    <bpmn:sequenceFlow id="Flow_25" sourceRef="Task_ProcessPayment" targetRef="EndEvent_AP" />
+    <bpmn:sequenceFlow id="Flow_23" sourceRef="BoundaryEvent_PaymentFailed" targetRef="Task_ResolvePaymentIssue" />
+    <bpmn:sequenceFlow id="Flow_24" sourceRef="Task_ResolvePaymentIssue" targetRef="EndEvent_AP" />
+    <bpmn:sequenceFlow id="Flow_26" sourceRef="StartEvent_GL" targetRef="Task_ImportBankStatement" />
+    <bpmn:sequenceFlow id="Flow_27" sourceRef="Task_ImportBankStatement" targetRef="Task_Reconcile" />
+    <bpmn:sequenceFlow id="Flow_28" sourceRef="Task_Reconcile" targetRef="Gateway_ParallelPeriodEnd" />
+    <bpmn:sequenceFlow id="Flow_29" sourceRef="Gateway_ParallelPeriodEnd" targetRef="Task_PostAccruals" />
+    <bpmn:sequenceFlow id="Flow_30" sourceRef="Gateway_ParallelPeriodEnd" targetRef="Task_PostDepreciation" />
+    <bpmn:sequenceFlow id="Flow_31" sourceRef="Task_PostAccruals" targetRef="Gateway_JoinPeriodEnd" />
+    <bpmn:sequenceFlow id="Flow_32" sourceRef="Task_PostDepreciation" targetRef="Gateway_JoinPeriodEnd" />
+    <bpmn:sequenceFlow id="Flow_33" sourceRef="Gateway_JoinPeriodEnd" targetRef="Task_GenerateDraftReports" />
+    <bpmn:sequenceFlow id="Flow_34" sourceRef="Task_GenerateDraftReports" targetRef="Task_ReviewReports" />
+    <bpmn:sequenceFlow id="Flow_37" name="Revisions Needed" sourceRef="Gateway_ReportsApproved" targetRef="Task_MakeAdjustments" />
+    <bpmn:sequenceFlow id="Flow_39" sourceRef="Task_MakeAdjustments" targetRef="Task_ReviewReports" />
+    <bpmn:sequenceFlow id="Flow_35" sourceRef="Task_ReviewReports" targetRef="Gateway_ReportsApproved" />
+    <bpmn:sequenceFlow id="Flow_36" name="Approved" sourceRef="Gateway_ReportsApproved" targetRef="Task_LockPeriod" />
+    <bpmn:sequenceFlow id="Flow_40" sourceRef="Task_LockPeriod" targetRef="EndEvent_GL" />
+    <bpmn:task id="Task_ReviseInvoice" name="Revise Invoice">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_PostAccruals" name="Post Accruals &#38; Prepayments">
+      <bpmn:incoming>Flow_29</bpmn:incoming>
+      <bpmn:outgoing>Flow_31</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_PostDepreciation" name="Calculate &#38; Post Depreciation">
+      <bpmn:incoming>Flow_30</bpmn:incoming>
+      <bpmn:outgoing>Flow_32</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_FollowUp" name="Initiate Collections Process">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_Investigate" name="Investigate Discrepancy">
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:association id="Association_1" sourceRef="Task_MakeAdjustments" targetRef="Task_GenerateDraftReports" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Participant_Process_di" bpmnElement="Participant_Process" isHorizontal="true">
+        <dc:Bounds x="150" y="70" width="1650" height="900" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Audit_di" bpmnElement="Lane_Audit" isHorizontal="true">
+        <dc:Bounds x="180" y="780" width="1620" height="190" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_GL_di" bpmnElement="Lane_GL" isHorizontal="true">
+        <dc:Bounds x="180" y="540" width="1620" height="240" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_AP_di" bpmnElement="Lane_AP" isHorizontal="true">
+        <dc:Bounds x="180" y="320" width="1620" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_AR_di" bpmnElement="Lane_AR" isHorizontal="true">
+        <dc:Bounds x="180" y="70" width="1620" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_AR_di" bpmnElement="StartEvent_AR">
+        <dc:Bounds x="242" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="227" y="205" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CreateDraftInvoice_di" bpmnElement="Task_CreateDraftInvoice">
+        <dc:Bounds x="330" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_InvoiceApproval_di" bpmnElement="Gateway_InvoiceApproval" isMarkerVisible="true">
+        <dc:Bounds x="485" y="155" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="469" y="125" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PostInvoice_di" bpmnElement="Task_PostInvoice">
+        <dc:Bounds x="600" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendInvoice_di" bpmnElement="Task_SendInvoice">
+        <dc:Bounds x="750" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_WaitForPayment_di" bpmnElement="Gateway_WaitForPayment">
+        <dc:Bounds x="905" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_PaymentReceived_di" bpmnElement="Event_PaymentReceived">
+        <dc:Bounds x="1012" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1008" y="75" width="46" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_DueDateReached_di" bpmnElement="Event_DueDateReached">
+        <dc:Bounds x="1012" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1007" y="245" width="47" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RegisterPayment_di" bpmnElement="Task_RegisterPayment">
+        <dc:Bounds x="1100" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_AR_di" bpmnElement="EndEvent_AR">
+        <dc:Bounds x="1252" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1233" y="145" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_AP_di" bpmnElement="StartEvent_AP">
+        <dc:Bounds x="242" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="234" y="425" width="53" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EnterBill_di" bpmnElement="Task_EnterBill">
+        <dc:Bounds x="330" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MatchBill_di" bpmnElement="Task_MatchBill">
+        <dc:Bounds x="480" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_MatchSuccess_di" bpmnElement="Gateway_MatchSuccess" isMarkerVisible="true">
+        <dc:Bounds x="635" y="375" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="632" y="350" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Discrepancy_di" bpmnElement="EndEvent_Discrepancy">
+        <dc:Bounds x="892" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="873" y="505" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ApproveBill_di" bpmnElement="Task_ApproveBill">
+        <dc:Bounds x="740" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PostBill_di" bpmnElement="Task_PostBill">
+        <dc:Bounds x="890" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SchedulePayment_di" bpmnElement="Task_SchedulePayment">
+        <dc:Bounds x="1040" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ProcessPayment_di" bpmnElement="Task_ProcessPayment">
+        <dc:Bounds x="1190" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ResolvePaymentIssue_di" bpmnElement="Task_ResolvePaymentIssue">
+        <dc:Bounds x="1330" y="450" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_AP_di" bpmnElement="EndEvent_AP">
+        <dc:Bounds x="1482" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1462" y="425" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_GL_di" bpmnElement="StartEvent_GL">
+        <dc:Bounds x="242" y="602" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="233" y="645" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ImportBankStatement_di" bpmnElement="Task_ImportBankStatement">
+        <dc:Bounds x="330" y="580" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Reconcile_di" bpmnElement="Task_Reconcile">
+        <dc:Bounds x="480" y="580" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ParallelPeriodEnd_di" bpmnElement="Gateway_ParallelPeriodEnd">
+        <dc:Bounds x="635" y="595" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_JoinPeriodEnd_di" bpmnElement="Gateway_JoinPeriodEnd">
+        <dc:Bounds x="895" y="595" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GenerateDraftReports_di" bpmnElement="Task_GenerateDraftReports">
+        <dc:Bounds x="1000" y="580" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MakeAdjustments_di" bpmnElement="Task_MakeAdjustments">
+        <dc:Bounds x="1300" y="640" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReviewReports_di" bpmnElement="Task_ReviewReports">
+        <dc:Bounds x="1150" y="820" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReportsApproved_di" bpmnElement="Gateway_ReportsApproved" isMarkerVisible="true">
+        <dc:Bounds x="1325" y="835" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1318" y="810" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LockPeriod_di" bpmnElement="Task_LockPeriod">
+        <dc:Bounds x="1430" y="820" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_GL_di" bpmnElement="EndEvent_GL">
+        <dc:Bounds x="1582" y="842" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1561" y="885" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReviseInvoice_di" bpmnElement="Task_ReviseInvoice">
+        <dc:Bounds x="460" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PostAccruals_di" bpmnElement="Task_PostAccruals">
+        <dc:Bounds x="740" y="550" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PostDepreciation_di" bpmnElement="Task_PostDepreciation">
+        <dc:Bounds x="740" y="660" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FollowUp_di" bpmnElement="Task_FollowUp">
+        <dc:Bounds x="1100" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Investigate_di" bpmnElement="Task_Investigate">
+        <dc:Bounds x="740" y="450" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BoundaryEvent_PaymentFailed_di" bpmnElement="BoundaryEvent_PaymentFailed">
+        <dc:Bounds x="1272" y="422" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="278" y="180" />
+        <di:waypoint x="330" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="430" y="180" />
+        <di:waypoint x="485" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="535" y="180" />
+        <di:waypoint x="600" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="546" y="162" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="510" y="205" />
+        <di:waypoint x="510" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="521" y="213" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="560" y="270" />
+        <di:waypoint x="650" y="270" />
+        <di:waypoint x="650" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="700" y="180" />
+        <di:waypoint x="750" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="850" y="180" />
+        <di:waypoint x="905" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="1200" y="240" />
+        <di:waypoint x="1220" y="240" />
+        <di:waypoint x="1220" y="180" />
+        <di:waypoint x="955" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="930" y="155" />
+        <di:waypoint x="930" y="120" />
+        <di:waypoint x="1012" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="930" y="205" />
+        <di:waypoint x="930" y="220" />
+        <di:waypoint x="1012" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="1048" y="120" />
+        <di:waypoint x="1100" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="1048" y="220" />
+        <di:waypoint x="1074" y="220" />
+        <di:waypoint x="1074" y="240" />
+        <di:waypoint x="1100" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="1200" y="120" />
+        <di:waypoint x="1252" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="278" y="400" />
+        <di:waypoint x="330" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="430" y="400" />
+        <di:waypoint x="480" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
+        <di:waypoint x="580" y="400" />
+        <di:waypoint x="635" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <di:waypoint x="685" y="400" />
+        <di:waypoint x="740" y="400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="704" y="375" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+        <di:waypoint x="660" y="425" />
+        <di:waypoint x="660" y="490" />
+        <di:waypoint x="740" y="490" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="668" y="448" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
+        <di:waypoint x="840" y="490" />
+        <di:waypoint x="866" y="490" />
+        <di:waypoint x="866" y="480" />
+        <di:waypoint x="892" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20">
+        <di:waypoint x="840" y="400" />
+        <di:waypoint x="890" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_21_di" bpmnElement="Flow_21">
+        <di:waypoint x="990" y="400" />
+        <di:waypoint x="1040" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_22_di" bpmnElement="Flow_22">
+        <di:waypoint x="1140" y="400" />
+        <di:waypoint x="1190" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_25_di" bpmnElement="Flow_25">
+        <di:waypoint x="1290" y="400" />
+        <di:waypoint x="1482" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_23_di" bpmnElement="Flow_23">
+        <di:waypoint x="1290" y="440" />
+        <di:waypoint x="1290" y="490" />
+        <di:waypoint x="1330" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_24_di" bpmnElement="Flow_24">
+        <di:waypoint x="1430" y="490" />
+        <di:waypoint x="1500" y="490" />
+        <di:waypoint x="1500" y="418" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_26_di" bpmnElement="Flow_26">
+        <di:waypoint x="278" y="620" />
+        <di:waypoint x="330" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_27_di" bpmnElement="Flow_27">
+        <di:waypoint x="430" y="620" />
+        <di:waypoint x="480" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_28_di" bpmnElement="Flow_28">
+        <di:waypoint x="580" y="620" />
+        <di:waypoint x="635" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_29_di" bpmnElement="Flow_29">
+        <di:waypoint x="685" y="620" />
+        <di:waypoint x="713" y="620" />
+        <di:waypoint x="713" y="590" />
+        <di:waypoint x="740" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_30_di" bpmnElement="Flow_30">
+        <di:waypoint x="660" y="645" />
+        <di:waypoint x="660" y="700" />
+        <di:waypoint x="740" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_31_di" bpmnElement="Flow_31">
+        <di:waypoint x="840" y="590" />
+        <di:waypoint x="868" y="590" />
+        <di:waypoint x="868" y="620" />
+        <di:waypoint x="895" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_32_di" bpmnElement="Flow_32">
+        <di:waypoint x="840" y="700" />
+        <di:waypoint x="920" y="700" />
+        <di:waypoint x="920" y="645" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_33_di" bpmnElement="Flow_33">
+        <di:waypoint x="945" y="620" />
+        <di:waypoint x="1000" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_34_di" bpmnElement="Flow_34">
+        <di:waypoint x="1100" y="620" />
+        <di:waypoint x="1120" y="620" />
+        <di:waypoint x="1120" y="860" />
+        <di:waypoint x="1150" y="860" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_37_di" bpmnElement="Flow_37">
+        <di:waypoint x="1350" y="885" />
+        <di:waypoint x="1350" y="720" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1245" y="760" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_39_di" bpmnElement="Flow_39">
+        <di:waypoint x="1350" y="720" />
+        <di:waypoint x="1350" y="800" />
+        <di:waypoint x="1200" y="800" />
+        <di:waypoint x="1200" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_35_di" bpmnElement="Flow_35">
+        <di:waypoint x="1250" y="860" />
+        <di:waypoint x="1325" y="860" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_36_di" bpmnElement="Flow_36">
+        <di:waypoint x="1375" y="860" />
+        <di:waypoint x="1430" y="860" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1379" y="835" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_40_di" bpmnElement="Flow_40">
+        <di:waypoint x="1530" y="860" />
+        <di:waypoint x="1582" y="860" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
